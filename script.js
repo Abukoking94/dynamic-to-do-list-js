@@ -3,6 +3,37 @@ document.addEventListener("DOMContentLoaded", function () {
   let taskInput = document.getElementById("task-input");
   let taskList = document.getElementById("task-list");
 
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+
+  function loadTasks() {
+    taskList.innerHTML = "";
+    tasks.forEach((taskText) => {
+      createTaskElement(taskText);
+    });
+  }
+
+  function createTaskElement(taskText) {
+    let list = document.createElement("li");
+    list.textContent = taskText;
+
+    let removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.classList.add("remove-btn");
+
+    removeBtn.addEventListener("click", function () {
+      tasks = tasks.filter((task) => task !== taskText);
+      saveTasks();
+      list.remove();
+    });
+
+    list.appendChild(removeBtn);
+    taskList.appendChild(list);
+  }
+
   function addTask() {
     let taskText = taskInput.value.trim();
 
@@ -11,18 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    let list = document.createElement("li");
-    list.textContent = taskText;
-    let removeBtn = document.createElement("button");
-    removeBtn.textContent = "Remove";
-    removeBtn.classList.add("remove-btn");
-
-    removeBtn.addEventListener("click", function () {
-      list.remove();
-    });
-
-    list.appendChild(removeBtn);
-    taskList.appendChild(list);
+    tasks.push(taskText);
+    saveTasks();
+    createTaskElement(taskText);
     taskInput.value = "";
   }
 
@@ -33,4 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   addButton.addEventListener("click", addTask);
+
+  loadTasks();
 });
